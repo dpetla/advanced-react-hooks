@@ -3,25 +3,33 @@
 
 import * as React from 'react'
 
-const CounterContext = React.createContext()
+const CountContext = React.createContext()
 
-function CounterProvider(props) {
+function CountProvider(props) {
   const [count, setCount] = React.useState(0)
   const value = [count, setCount]
   return (
-    <CounterContext.Provider {...props} value={value}>
+    <CountContext.Provider {...props} value={value}>
       {props.children}
-    </CounterContext.Provider>
+    </CountContext.Provider>
   )
 }
 
+function useCount() {
+  const context = React.useContext(CountContext)
+  if (!context) {
+    throw new Error(`Counter must be rendered within the ${CountProvider.name}`)
+  }
+  return context
+}
+
 function CountDisplay() {
-  const [count] = React.useContext(CounterContext)
+  const [count] = useCount()
   return <div>{`The current count is ${count}`}</div>
 }
 
 function Counter() {
-  const [, setCount] = React.useContext(CounterContext)
+  const [, setCount] = useCount()
   const increment = () => setCount(c => c + 1)
   return <button onClick={increment}>Increment count</button>
 }
@@ -29,10 +37,10 @@ function Counter() {
 function App() {
   return (
     <div>
-      <CounterProvider>
+      <CountProvider>
         <CountDisplay />
         <Counter />
-      </CounterProvider>
+      </CountProvider>
     </div>
   )
 }
